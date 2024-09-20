@@ -1,6 +1,13 @@
-const express = require('express')
+import express from 'express';
+import { 
+  listContacts, 
+  getContactById, 
+  addContact, 
+  removeContact, 
+  updateContact 
+} from '../../models/contacts.js'; // Ensure the path is correct
 
-const router = express.Router()
+const router = express.Router();
 
 router.get("/", async (_req, res, next) => {
   try {
@@ -64,5 +71,4 @@ router.put("/:contactId", async (req, res, next) => {
   }
 });
 
-
-module.exports = router
+export default router; // Use export default for ES module
