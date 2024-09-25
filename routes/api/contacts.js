@@ -1,74 +1,42 @@
-import express from 'express';
-import { 
-  listContacts, 
-  getContactById, 
-  addContact, 
-  removeContact, 
-  updateContact 
-} from '../../models/contacts.js'; // Ensure the path is correct
+import express from "express";
+import { ctrlWrapper } from "../../helpers/ctrlWrapper.js";
+// prettier-ignore
+import { addContact, deleteContactById, getAllContacts, getContactById, updateContactById, updateStatusContact } from "../../controllers/contactsController.js";
 
 const router = express.Router();
 
-router.get("/", async (_req, res, next) => {
-  try {
-    const result = await listContacts();
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-});
+/* GET: // http://localhost:3000/api/contacts */
+router.get("/", ctrlWrapper(getAllContacts));
 
-router.get("/:contactId", async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const result = await getContactById(contactId);
-    if (!result) {
-      return res.status(404).json({ message: "Not found" });
-    }
+/* GET: // http://localhost:3000/api/contacts/:contactId */
+router.get("/:contactId", ctrlWrapper(getContactById));
 
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-});
+/* POST: // http://localhost:3000/api/contacts/ 
+{
+    "name": "Marvin Pacis",
+    "email": "marvinpacis@example.com",
+    "phone": "(639) 840-6611"
+} 
+*/
+router.post("/", ctrlWrapper(addContact));
 
-router.post("/", async (req, res, next) => {
-  try {
-    const result = await addContact(req.body);
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-});
+/* DELETE: // http://localhost:3000/api/contacts/:contactId */
+router.delete("/:contactId", ctrlWrapper(deleteContactById));
 
-// corresponds to removeContact
-router.delete("/:contactId", async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const result = await removeContact(contactId);
+/* PUT: // http://localhost:3000/api/contacts/:contactId 
+{
+    "name": "Joanna Shaw",
+    "email": "joannashaw@example.com",
+    "phone": "(639) 777-8819"
+} 
+*/
+router.put("/:contactId", ctrlWrapper(updateContactById));
 
-    if (!result) {
-      return res.status(404).json({ message: "Not found" });
-    }
+/* PATCH: // http://localhost:3000/api/contacts/:contactId/favorite
+{
+    "favorite": true,
+}
+*/
+router.patch("/:contactId/favorite", ctrlWrapper(updateStatusContact));
 
-    res.json({ message: "Contact deleted" }); // Send a message instead of the result
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/:contactId", async (req, res, next) => {
-  try {
-    const result = await updateContact(req.params.contactId, req.body);
-
-    if (!result) {
-      return res.status(404).json({ message: "Not found" });
-    }
-
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
-export default router; // Use export default for ES module
+export { router };
