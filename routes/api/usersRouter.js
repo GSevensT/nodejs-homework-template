@@ -3,6 +3,7 @@ import { ctrlWrapper } from "../../helpers/ctrlWrapper.js";
 // prettier-ignore
 import { signupUser, loginUser, logoutUser, getCurrentUsers, updateUserSubscription} from "../../controllers/usersController.js";
 import { authenticateToken } from "../../middlewares/authenticateToken.js";
+import { upload } from "../../middlewares/upload.js";
 
 const router = express.Router();
 
@@ -33,5 +34,13 @@ router.get("/current", authenticateToken, ctrlWrapper(getCurrentUsers));
     "subscription":"pro"
 }
 */
+
 router.patch("/", authenticateToken, ctrlWrapper(updateUserSubscription));
+
+/* PATCH: // http://localhost:3000/api/users/avatars
+    form-data
+    avatar,file : image
+*/
+
+router.patch("/avatars", authenticateToken, upload.single("avatar"), ctrlWrapper(updateUserSubscription));
 export { router };
