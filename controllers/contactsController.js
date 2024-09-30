@@ -2,15 +2,19 @@ import { Contact } from "../models/contactsModel.js";
 import { contactValidation, favoriteValidation } from "../validations/validation.js";
 import { httpError } from "../helpers/httpError.js";
 
-const getAllContacts = async (_req, res) => {
+const getAllContacts = async (req, res) => {
+  const { page = 1, limit = 20, favorite } = req.query;
+  const query = favorite ? { favorite: true } : {};
 
-  const result = await Contact.find();
+  const result = await Contact.find(query)
+    .skip((page - 1) * limit)
+    .limit(parseInt(limit));
+
   res.json(result);
 };
 
 const getContactById = async (req, res) => {
   const { contactId } = req.params;
-
   const result = await Contact.findById(contactId);
 
   if (!result) {
@@ -24,7 +28,7 @@ const addContact = async (req, res) => {
   const { error } = contactValidation.validate(req.body);
 
   if (error) {
-    throw httpError(400, "missing required field");
+    throw httpError(400, "missing required fields");
   }
 
   const result = await Contact.create(req.body);
@@ -34,8 +38,6 @@ const addContact = async (req, res) => {
 
 const deleteContactById = async (req, res) => {
   const { contactId } = req.params;
-
- 
   const result = await Contact.findByIdAndDelete(contactId);
 
   if (!result) {
@@ -54,7 +56,6 @@ const updateContactById = async (req, res) => {
   }
 
   const { contactId } = req.params;
-
   const result = await Contact.findByIdAndUpdate(contactId, req.body, {
     new: true,
   });
@@ -67,14 +68,12 @@ const updateContactById = async (req, res) => {
 };
 
 const updateStatusContact = async (req, res) => {
-
   const { error } = favoriteValidation.validate(req.body);
   if (error) {
     throw httpError(400, "missing field favorite");
   }
 
   const { contactId } = req.params;
-
   const result = await Contact.findByIdAndUpdate(contactId, req.body, {
     new: true,
   });
@@ -85,6 +84,5 @@ const updateStatusContact = async (req, res) => {
 
   res.json(result);
 };
-
 
 export { getAllContacts, getContactById, addContact, deleteContactById, updateContactById, updateStatusContact};
